@@ -19,9 +19,7 @@ my %main_hash = (
     BUILD_REQUIRES => {
         'Test::More' => 0,
         'Test::PDL' => 0,
-        'Statistics::Descriptive' => "3.06",
         "Devel::Symdump" => "0",
-        "PDL" => "0",
         "rlib" => "0",
     },
     PREREQ_PM => {
