@@ -1,9 +1,7 @@
 use 5.006;
 use strict;
 use warnings;
-
 use ExtUtils::MakeMaker;
-use PDL::Core::Dev;
 
 my $abstract = 'PDL::ReduceByRuns - reduce values in one ndarray given runs of values in a second ndarray';
 
