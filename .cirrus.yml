@@ -1,0 +1,33 @@
+freebsd_instance:
+  image: freebsd-12-1-release-amd64
+
+task:
+  
+  env:
+    AUTOMATED_TESTING: 1
+    PERL_MOD_DIR: /perl5
+    #MAKEFLAGS: -j4
+
+  cpan_cache:
+    folder: /perl5
+    reupload_on_changes: false # set to false if there is a fingerprint script
+    fingerprint_script:
+      - echo $CIRRUS_OS 20210918
+
+  install_script:
+    - sudo pkg install -y p5-App-cpanminus    
+    - sudo cpanm local::lib
+    - echo probe local::lib
+    - perl -I ${PERL_MOD_DIR}/lib/perl5/ -Mlocal::lib
+    - echo Run it anyway...
+    - eval $(perl -I ${PERL_MOD_DIR}/lib/perl5/ -Mlocal::lib)
+    - cpanm PDL
+
+  script:
+    - eval $(perl -I ${PERL_MOD_DIR}/lib/perl5/ -Mlocal::lib)
+    - echo LD_LIBRARY_PATH is ${LD_LIBRARY_PATH}
+    - perl Makefile.PL
+    - cpanm --installdeps .
+    - make
+    - make test
+    
