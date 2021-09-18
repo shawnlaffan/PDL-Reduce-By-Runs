@@ -60,6 +60,7 @@ jobs:
           echo $(perl -Mlocal::lib=${HOME}/perl5)
           eval "$(perl -Mlocal::lib=${HOME}/perl5)"
           cpanm --notest PDL
+          cpanm -v Test::PDL
 
       - name: Run Tests
         run: |
