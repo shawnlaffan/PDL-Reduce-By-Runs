@@ -51,6 +51,7 @@ jobs:
       - name: Install task deps
         run: |
           cpanm --notest --no-man-pages PDL
+          cpanm --installdeps .
   
       # Runs a set of commands using the runners shell
       - name: Build and test

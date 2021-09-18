@@ -59,8 +59,7 @@ jobs:
           cpanm --notest local::lib
           echo $(perl -Mlocal::lib=${HOME}/perl5)
           eval "$(perl -Mlocal::lib=${HOME}/perl5)"
-          cpanm PDL
-
+          cpanm --notest PDL
 
       - name: Run Tests
         run: |
@@ -71,7 +70,7 @@ jobs:
           export LC_CTYPE=de_DE.iso88591
           locale
           perl -MPOSIX -E'say join " ", POSIX::strtod 3.14'          
-          perl Makefile.PL
           cpanm --installdpes .
+          perl Makefile.PL
           make
           make test

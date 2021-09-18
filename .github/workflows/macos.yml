@@ -53,7 +53,7 @@ jobs:
 
       - name: Build and test
         run: |
-          perl Makefile.PL
           cpanm --notest --installdeps .
+          perl Makefile.PL
           make test
         

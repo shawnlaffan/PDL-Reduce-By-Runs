@@ -21,13 +21,12 @@ task:
     - perl -I ${PERL_MOD_DIR}/lib/perl5/ -Mlocal::lib
     - echo Run it anyway...
     - eval $(perl -I ${PERL_MOD_DIR}/lib/perl5/ -Mlocal::lib)
-    - cpanm PDL
+    - cpanm --installdeps .
 
   script:
     - eval $(perl -I ${PERL_MOD_DIR}/lib/perl5/ -Mlocal::lib)
     - echo LD_LIBRARY_PATH is ${LD_LIBRARY_PATH}
     - perl Makefile.PL
-    - cpanm --installdeps .
     - make
     - make test
     
