@@ -33,3 +33,5 @@ xt/.perlcritic-history
 
 .travis.yml
 appveyor.yml
+
+PDL-ReduceByRuns-

@@ -4,16 +4,14 @@ use warnings;
 
 use ExtUtils::MakeMaker;
 use PDL::Core::Dev;
- 
-#my $package = ["ReduceByRuns.pd", 'ReduceByRuns', 'PDL::ReduceByRuns'];
-#my %pd_hash = pdlpp_stdargs($package);
+
+my $abstract = 'PDL::ReduceByRuns - reduce values in one ndarray given runs of values in a second ndarray';
 
 my %main_hash = (
     NAME             => 'PDL::ReduceByRuns',
     AUTHOR           => q{Shawn Laffan <shawnlaffan@gmail.com>},
-    #VERSION_FROM     => 'lib/PDL/ReduceByRuns.pm',
-    VERSION => '0.01',
-    #ABSTRACT_FROM    => 'lib/PDL/ReduceByRuns.     pm',
+    VERSION          => '0.01',
+    ABSTRACT         => $abstract,
     LICENSE          => 'artistic_2',
     PL_FILES         => {},
     MIN_PERL_VERSION => 5.010,
@@ -47,7 +45,3 @@ my %main_hash = (
 );
 
 WriteMakefile( %main_hash );
-#@pd_hash{keys %main_hash} = values %main_hash;
-#WriteMakefile( %pd_hash );
- 
-#sub MY::postamble {pdlpp_postamble($package)};
