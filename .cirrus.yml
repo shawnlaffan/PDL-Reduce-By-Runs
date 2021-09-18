@@ -21,7 +21,7 @@ task:
     - perl -I ${PERL_MOD_DIR}/lib/perl5/ -Mlocal::lib
     - echo Run it anyway...
     - eval $(perl -I ${PERL_MOD_DIR}/lib/perl5/ -Mlocal::lib)
-    - cpanm --installdeps .
+    - cpanm --notest --installdeps .
 
   script:
     - eval $(perl -I ${PERL_MOD_DIR}/lib/perl5/ -Mlocal::lib)
