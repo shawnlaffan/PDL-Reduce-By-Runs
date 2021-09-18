@@ -10,6 +10,7 @@ install:
   - set TMPDIR=%APPVEYOR_BUILD_FOLDER%\tmp
   - perl -V
   - cpan App::cpanminus
+  - cpanm --notest PDL
   - 'echo End install at: & time /t'
 
 build_script:
