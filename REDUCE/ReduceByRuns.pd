@@ -1,6 +1,6 @@
 #pp_bless ('PDL::ReduceByRuns');
 
-our $VERSION = '0.08';
+our $VERSION = '0.01';
 
 pp_addpm({At=>'Top'}, <<'EOD');
  
