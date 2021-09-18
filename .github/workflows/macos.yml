@@ -51,10 +51,9 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-build-${{ hashFiles('perlversion.txt') }}
 
-      - name: Install Dynamic Dependencies
+      - name: Build and test
         run: |
+          perl Makefile.PL
           cpanm --notest --installdeps .
-      
-      - name: Run Tests
-        run: prove -l -j4
+          make test
         

@@ -51,11 +51,10 @@ jobs:
       - name: Install task deps
         run: |
           cpanm --notest --no-man-pages PDL
-          cpanm --notest --installdeps .
-          cpanm --installdeps .
   
       # Runs a set of commands using the runners shell
-      - name: Run tests
+      - name: Build and test
         run: |
-          prove -l t
-          
+          perl Makefile.PL
+          cpanm --installdeps .
+          gmake test
