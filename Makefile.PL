@@ -22,6 +22,7 @@ my %main_hash = (
         'Statistics::Descriptive' => "3.06",
         "Devel::Symdump" => "0",
         "PDL" => "0",
+        "rlib" => "0",
     },
     PREREQ_PM => {
         #  PDL:: versions should be able to go lower, but need to start somewhere
