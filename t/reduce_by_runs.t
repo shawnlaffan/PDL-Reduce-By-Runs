@@ -58,7 +58,7 @@ sub test_sums {
     $result = sum_by_runs ($runner, $agger);
     #say STDERR $result;
     $expected_agg = PDL->pdl ([4.4,4.4,2.2]);
-    is_pdl $result->[1], $expected_agg, 'x has doubles';
+    is_pdl $result->[1], $expected_agg, 'aggregate sums are doubles';
     
     $agger = PDL->pdl ([(1) x 14]);
     $runner = PDL->pdl ([1.1,1.1,1.1,1.1,2.0,2,2,2,3.0,3,1.1,1.1,2,2]);
@@ -75,8 +75,8 @@ sub test_sums {
     #say STDERR $runner;
     #say STDERR $agger;
     my ($vals, $agged) = sum_by_runs ($runner, $agger);
-    is_pdl $agged, PDL->ones(12) * 5, "aggregates correct for ndim ndarray";
-    is_pdl $vals,  $runner->uniq, "runners correct for ndim ndarray";
+    is_pdl $agged, PDL->ones(12) * 5, "aggregate sums for ndim ndarray";
+    is_pdl $vals,  $runner->uniq,     "runner values for ndim ndarray";
     #say STDERR "Aggregated: " . $agged;
     #say STDERR "Values:     " . $vals;
 }
