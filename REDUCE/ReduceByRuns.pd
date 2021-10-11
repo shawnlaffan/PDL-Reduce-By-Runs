@@ -36,17 +36,17 @@ pp_def('sum_by_runs',
   Pars      => 'a(n); b(n); [o]t(m); indx s(m);',
   PMCode    => <<'EOC',
 sub PDL::sum_by_runs {
-  my ($x,$y) = @_;
+  my ($agger, $runner) = @_;
   #  will not handle overflow
-  my $t     = $x->zeroes ($x->type(), $x->nelem);
+  my $t     = $agger->zeroes ($agger->type(), $agger->nelem);
   #  this stores in its first value the highest index into $t
   my $sizer = pdl(PDL::indx, [0]);
-  &PDL::_sum_by_runs_int($x->flat,$y->flat,$t,$sizer);
+  &PDL::_sum_by_runs_int($agger->flat,$runner->flat,$t,$sizer);
   #say STDERR "S IS: " . $sizer;
   #say STDERR "T IS $t";
   $sizer = $sizer->at(0);
   #say STDERR "S IS: " . $sizer;
-  return $t->reshape($sizer+1)->sever;
+  return $t->reshape($sizer)->sever;
 }
 EOC
   HandleBad => 0,  #  fix later
@@ -67,7 +67,7 @@ EOC
       sum += $a();
     %}
     $t(m=>j) = sum;
-    $s(m=>0) = j;
+    $s(m=>0) = j+1;  // nvals
   ',
   Doc      => '
  
