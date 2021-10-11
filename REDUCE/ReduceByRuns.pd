@@ -79,8 +79,13 @@ EOC
  
 =for ref
  
-Sum values in first ndarray given contiguous sequences of
-the same value in the second ndarray.
+Sum values in second ndarray given contiguous sequences of
+the same value in the first ndarray.
+
+Returns two ndarrays, the first is the values of the runs,
+the second is their aggregated values.
+
+In scalar context returns an array ref containing the two ndarrays.
  
 =cut
   ',
