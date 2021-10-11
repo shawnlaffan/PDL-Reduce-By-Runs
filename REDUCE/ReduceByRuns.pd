@@ -30,6 +30,47 @@ stuff
 EOD
 ;
 
+my $min_code = <<'END_MIN_CODE'
+    PDL_Indx j = 0;
+    double min = $a(n=>0);
+    $GENERIC(b) bval, last_bval;
+    last_bval = $b(n=>0);
+    $t(m=>0) = 0;
+    loop (n) %{
+      bval = $b();
+      if (last_bval != bval) {
+        $t(m=>j) = min;
+        $u(m=>j) = last_bval;
+        min = $a();
+        j++;
+        last_bval = bval;
+      }
+      HANDLEBADCODEHERE
+    %}
+    $t(m=>j) = min;
+    $u(m=>j) = last_bval;
+    $s() = j+1;  // number of vals    
+
+END_MIN_CODE
+  ;
+my $min_code_bad = $min_code;
+my $min_code_action = '
+  if ($a() < min) {
+    min = $a();
+  }
+';
+my $min_code_bad_action = '
+  if ($ISGOOD($a()) && $a() < min) {
+    min = $a();
+  }
+  else {
+    min = $a();
+  }
+';
+$min_code     =~ s/HANDLEBADCODEHERE/$min_code_action/;
+$min_code_bad =~ s/HANDLEBADCODEHERE/$min_code_bad_action/;
+
+
 my $sum_code = <<'END_SUM_CODE'
     PDL_Indx j = 0;
     double sum = 0;
@@ -56,10 +97,16 @@ my $sum_code = <<'END_SUM_CODE'
 END_SUM_CODE
   ;
 my $sum_code_bad = $sum_code;
+
 #  now replace the markers
-$sum_code =~ s/MMMARKER[12]//g;              
-$sum_code_bad =~ s/MMMARKER1/if (\$ISGOOD(a())) {/;
-$sum_code_bad =~ s/MMMARKER2/}/;
+foreach ($sum_code, $min_code) {
+  $_ =~ s/MMMARKER[12]//g;
+}
+foreach ($sum_code_bad, $min_code_bad) {
+  $_ =~ s/MMMARKER1/if (\$ISGOOD(a())) {/;
+  $_ =~ s/MMMARKER2/}/;
+}
+
 
 # flattens any inputs before running the calculations
 #  perl inputs are reversed wrt pdl call
@@ -103,6 +150,42 @@ In scalar context returns an array ref containing the two ndarrays.
  
 );
 
-#pp_export_nothing();
+# flattens any inputs before running the calculations
+#  perl inputs are reversed wrt pdl call
+pp_def('min_by_runs',
+  Pars      => 'a(n); b(n); [o]t(m); [o]u(m); indx s();',
+  PMCode    => <<'EOC',
+sub PDL::min_by_runs {
+  my ($runner, $agger) = @_;
+  my $t = $agger->zeroes ($agger->type(), $agger->nelem);
+  my $u = $t->copy;
+  #  this stores in its first value the highest index into $t
+  my $sizer = pdl(PDL::indx, [0]);
+  &PDL::_min_by_runs_int($agger->flat,$runner->flat,$t,$u,$sizer);
+  $sizer = $sizer->at(0);
+  $t->reshape($sizer)->sever;  #  get rid of excess vals
+  $u->reshape($sizer)->sever;
+  return wantarray ? ($u, $t) : [$u, $t];
+}
+EOC
+  HandleBad => 1,
+  Code      => $min_code,
+  BadCode   => $min_code_bad,
+  Doc       => '
+ 
+=for ref
+ 
+Calculate the minimum values in second ndarray given contiguous sequences of
+the same value in the first ndarray.
+
+Returns two ndarrays, the first is the values of the runs,
+the second is their aggregated values.
+
+In scalar context returns an array ref containing the two ndarrays.
+ 
+=cut
+  ',
+ 
+);
 
 pp_done();
