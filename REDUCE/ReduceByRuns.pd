@@ -114,7 +114,9 @@ my $sum_code = <<'END_SUM_CODE'
 
 END_SUM_CODE
   ;
-my $sum_code_bad = $sum_code;
+my $sum_code_bad  = $sum_code;
+my $prod_code     = $sum_code;
+
 my $sum_code_action = 'sum += $a();';
 my $sum_code_bad_action = '
 if ($ISGOOD(a())) {
@@ -123,6 +125,18 @@ if ($ISGOOD(a())) {
 ';
 $sum_code     =~ s/HANDLEBADCODEHERE/$sum_code_action/;
 $sum_code_bad =~ s/HANDLEBADCODEHERE/$sum_code_bad_action/;
+
+#  fix starting val
+$prod_code =~ s/sum = 0/sum = 1/g;
+my $prod_code_bad = $prod_code;
+my $prod_code_action = 'sum *= $a();';
+my $prod_code_bad_action = '
+if ($ISGOOD(a())) {
+  sum *= $a();
+}
+';
+$prod_code     =~ s/HANDLEBADCODEHERE/$prod_code_action/;
+$prod_code_bad =~ s/HANDLEBADCODEHERE/$prod_code_bad_action/;
 
 
 # flattens any inputs before running the calculations
@@ -155,6 +169,48 @@ EOC
 =for ref
  
 Sum values in second ndarray given contiguous sequences of
+the same value in the first ndarray.
+
+Returns two ndarrays, the first is the values of the runs,
+the second is their aggregated values.
+
+In scalar context returns an array ref containing the two ndarrays.
+ 
+=cut
+  ',
+ 
+);
+
+# flattens any inputs before running the calculations
+#  perl inputs are reversed wrt pdl call
+pp_def('product_by_runs',
+  Pars      => 'a(n); b(n); [o]t(m); [o]u(m); indx s();',
+  PMCode    => <<'EOC',
+sub PDL::product_by_runs {
+  my ($runner, $agger) = @_;
+  #  will not handle overflow
+  my $t = $agger->zeroes ($agger->type(), $agger->nelem);
+  my $u = $t->copy;
+  #  this stores in its first value the highest index into $t
+  my $sizer = pdl(PDL::indx, [0]);
+  &PDL::_product_by_runs_int($agger->flat,$runner->flat,$t,$u,$sizer);
+  #say STDERR "S IS: " . $sizer;
+  #say STDERR "T IS $t";
+  $sizer = $sizer->at(0);
+  #say STDERR "S IS: " . $sizer;
+  $t->reshape($sizer)->sever;  #  get rid of excess vals
+  $u->reshape($sizer)->sever;
+  return wantarray ? ($u, $t) : [$u, $t];
+}
+EOC
+  HandleBad => 1,
+  Code      => $prod_code,
+  BadCode   => $prod_code_bad,
+  Doc       => '
+ 
+=for ref
+ 
+Caluclate the product of values in second ndarray given contiguous sequences of
 the same value in the first ndarray.
 
 Returns two ndarrays, the first is the values of the runs,

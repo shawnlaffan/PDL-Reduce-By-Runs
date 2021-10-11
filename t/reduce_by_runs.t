@@ -195,3 +195,55 @@ sub test_maxima {
     is_pdl $agged, $expected_agg, "aggregate mins when agger has bad vals";
     is_pdl $vals,  $expected_val,  "runner values when agger min has bad vals";
 }
+
+sub test_products {
+    my ($runner, $agger, $result, $expected_val, $expected_agg);
+    
+    $agger = PDL->sequence (10);
+    $runner = PDL->new ([1,1,1,1,2,2,2,2,3,3]);
+    $result = product_by_runs ($runner, $agger);
+    #say STDERR $result;
+    $expected_agg = PDL->new ([0,840,72]);
+    is_pdl $result->[1], $expected_agg, 'simple prod aggregate';
+    is_pdl $result->[0], $runner->uniq, 'simple prod values';
+
+    $agger = PDL->new ([(1.1) x 10]);
+    $runner = PDL->new ([1.1,1.1,1.1,1.1,2.0,2,2,2,3.0,3]);
+    $result = product_by_runs ($runner, $agger);
+    #say STDERR $result;
+    my $cum_val = 1.1*1.1*1.1*1.1;
+    $expected_agg = PDL->pdl ([$cum_val,$cum_val,1.1*1.1]);
+    is_pdl $result->[1], $expected_agg, 'aggregate products are doubles';
+    
+    $agger = PDL->sequence (14);
+    $runner = PDL->pdl ([1.1,1.1,1.1,1.1,2.0,2,2,2,3.0,3,1.1,1.1,2,2]);
+    $result = product_by_runs ($runner, $agger);
+    #say STDERR $result;
+    $expected_agg = PDL->pdl ([0,840,72,110,156]);
+    $expected_val = PDL->pdl ([1.1, 2, 3, 1.1, 2]);
+    is_pdl $result->[1], $expected_agg, 'compare equal product';
+    is_pdl $result->[0], $expected_val, 'values product';
+
+    $runner = PDL->sequence (3,4,5)->divide(5, 0)->floor;
+    $agger  = PDL->ones ($runner->dims);
+    my ($vals, $agged) = product_by_runs ($runner, $agger);
+    is_pdl $agged, PDL->ones(12), "aggregate products for ndim ndarray";
+    is_pdl $vals,  $runner->uniq, "runner values for ndim ndarray product";
+
+    $runner = PDL->pdl ([1,1,1,2,2,2,1,1,1,2,2,2]);
+    $runner = $runner->setbadif($runner==2);
+    $agger  = PDL->ones ($runner->dims);
+    ($vals, $agged) = product_by_runs ($runner, $agger);
+    $expected_val = PDL->pdl (q[1 bad 1 bad]); 
+    is_pdl $agged, PDL->ones(4), "aggregate sums when runner has bad vals";
+    is_pdl $vals,  $expected_val,  "runner values when runner has bad vals";
+    
+    $runner = PDL->pdl ([1,1,1,2,2,2,1,1,1,2,2,2]);
+    $agger  = PDL->ones ($runner->dims);
+    $agger->setbadat (0);
+    $agger->setbadat (7);
+    ($vals, $agged) = product_by_runs ($runner, $agger);
+    $expected_val = PDL->pdl (q[1 2 1 2]); 
+    is_pdl $agged, PDL->new ([1,1,1,1]), "aggregate sums when agger has bad vals";
+    is_pdl $vals,  $expected_val,  "runner values when agger has bad vals";
+}
