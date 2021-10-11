@@ -30,6 +30,36 @@ stuff
 EOD
 ;
 
+my $sum_code = <<'END_SUM_CODE'
+    PDL_Indx j = 0;
+    double sum = 0;
+    $GENERIC(b) bval, last_bval;
+    last_bval = $b(n=>0);
+    $t(m=>0) = 0;
+    loop (n) %{
+      bval = $b();
+      if (last_bval != bval) {
+        $t(m=>j) = sum;
+        $u(m=>j) = last_bval;
+        sum = 0;
+        j++;
+        last_bval = bval;
+      }
+      MMMARKER1
+        sum += $a();
+      MMMARKER2
+    %}
+    $t(m=>j) = sum;
+    $u(m=>j) = last_bval;
+    $s() = j+1;  // number of vals    
+
+END_SUM_CODE
+  ;
+my $sum_code_bad = $sum_code;
+#  now replace the markers
+$sum_code =~ s/MMMARKER[12]//g;              
+$sum_code_bad =~ s/MMMARKER1/if (\$ISGOOD(a())) {/;
+$sum_code_bad =~ s/MMMARKER2/}/;
 
 # flattens any inputs before running the calculations
 #  perl inputs are reversed wrt pdl call
@@ -53,52 +83,10 @@ sub PDL::sum_by_runs {
   return wantarray ? ($u, $t) : [$u, $t];
 }
 EOC
-  HandleBad => 1,  #  fix later
-  Code      => '
-    PDL_Indx j = 0;
-    double sum = 0;
-    $GENERIC(b) bval, last_bval;
-    last_bval = $b(n=>0);
-    $t(m=>0) = 0;
-    loop (n) %{
-      bval = $b();
-      if (last_bval != bval) {
-        $t(m=>j) = sum;
-        $u(m=>j) = last_bval;
-        sum = 0;
-        j++;
-        last_bval = bval;
-      }
-      sum += $a();
-    %}
-    $t(m=>j) = sum;
-    $u(m=>j) = last_bval;
-    $s() = j+1;  // number of vals
-  ',
-  BadCode      => '
-    PDL_Indx j = 0;
-    double sum = 0;
-    $GENERIC(b) bval, last_bval;
-    last_bval = $b(n=>0);
-    $t(m=>0) = 0;
-    loop (n) %{
-      bval = $b();
-      if (last_bval != bval) {
-        $t(m=>j) = sum;
-        $u(m=>j) = last_bval;
-        sum = 0;
-        j++;
-        last_bval = bval;
-      }
-      if ($ISGOOD(a())) {
-        sum += $a();
-      }
-    %}
-    $t(m=>j) = sum;
-    $u(m=>j) = last_bval;
-    $s() = j+1;  // number of vals
-  ',
-  Doc      => '
+  HandleBad => 1,
+  Code      => $sum_code,
+  BadCode   => $sum_code_bad,
+  Doc       => '
  
 =for ref
  
