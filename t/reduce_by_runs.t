@@ -144,3 +144,54 @@ sub test_minima {
     is_pdl $agged, $expected_agg, "aggregate mins when agger has bad vals";
     is_pdl $vals,  $expected_val,  "runner values when agger min has bad vals";
 }
+
+sub test_maxima {
+    my ($runner, $agger, $result, $expected_val, $expected_agg);
+    my ($vals, $agged);
+
+    $agger = PDL->sequence (10);
+    $runner = PDL->new ([1,1,1,1,2,2,2,2,3,3]);
+    $result = max_by_runs ($runner, $agger);
+    $expected_agg = PDL->new ([3,7,9]);
+    is_pdl $result->[1], $expected_agg, 'simple max aggregate';
+    is_pdl $result->[0], $runner->uniq, 'simple max values';
+    
+    $agger = PDL->sequence (10) + 0.1;
+    $runner = PDL->new ([1.1,1.1,1.1,1.1,2.0,2,2,2,3.0,3]);
+    $result = max_by_runs ($runner, $agger);
+    $expected_agg = PDL->pdl ([3.1,7.1,9.1]);
+    is_pdl $result->[1], $expected_agg, 'aggregate maxes are doubles';
+    
+    $agger = PDL->sequence (14);
+    $runner = PDL->pdl ([1.1,1.1,1.1,1.1,2.0,2,2,2,3.0,3,1.1,1.1,2,2]);
+    $result = max_by_runs ($runner, $agger);
+    $expected_agg = PDL->pdl ([3,7,9,11,13]);
+    $expected_val = PDL->pdl ([1.1, 2, 3, 1.1, 2]);
+    is_pdl $result->[1], $expected_agg, 'compare equal';
+    is_pdl $result->[0], $expected_val, 'values';
+
+    $runner = PDL->sequence (2,3,4)->divide(5, 0)->floor;
+    $agger  = PDL->sequence ($runner->dims);
+    ($vals, $agged) = max_by_runs ($runner, $agger);
+    $expected_agg = PDL->new (4, 9, 14, 19, 23);
+    is_pdl $agged, $expected_agg, "aggregate mins for ndim ndarray";
+    is_pdl $vals,  $runner->uniq, "runner values for min ndim ndarray";
+
+    $runner = PDL->pdl ([1,1,1,2,2,2,1,1,1,2,2,2]);
+    $runner = $runner->setbadif($runner==2);
+    $agger  = PDL->ones ($runner->dims);
+    ($vals, $agged) = max_by_runs ($runner, $agger);
+    $expected_val = PDL->pdl (q[1 bad 1 bad]); 
+    is_pdl $agged, PDL->ones(4),  "aggregate mins when runner has bad vals";
+    is_pdl $vals,  $expected_val, "runner values when min runner has bad vals";
+    
+    $runner = PDL->pdl ([1,1,1,2,2,2,1,1,1,2,2,2]);
+    $agger  = PDL->ones ($runner->dims);
+    $agger->setbadat (0);
+    $agger->setbadat (7);
+    ($vals, $agged) = max_by_runs ($runner, $agger);
+    $expected_val = PDL->pdl (q[1 2 1 2]);
+    $expected_agg = PDL->new ([1,1,1,1]);
+    is_pdl $agged, $expected_agg, "aggregate mins when agger has bad vals";
+    is_pdl $vals,  $expected_val,  "runner values when agger min has bad vals";
+}

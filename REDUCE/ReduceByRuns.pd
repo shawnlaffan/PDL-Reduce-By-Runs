@@ -30,6 +30,7 @@ stuff
 EOD
 ;
 
+#  min is also used for max - should rename that var
 my $min_code = <<'END_MIN_CODE'
     PDL_Indx j = 0;
     double min = $a(n=>0);
@@ -54,6 +55,9 @@ my $min_code = <<'END_MIN_CODE'
 END_MIN_CODE
   ;
 my $min_code_bad = $min_code;
+my $max_code     = $min_code;
+my $max_code_bad = $max_code;
+
 my $min_code_action = '
   if ($a() < min) {
     min = $a();
@@ -69,6 +73,22 @@ my $min_code_bad_action = '
 ';
 $min_code     =~ s/HANDLEBADCODEHERE/$min_code_action/;
 $min_code_bad =~ s/HANDLEBADCODEHERE/$min_code_bad_action/;
+
+my $max_code_action = '
+  if ($a() > min) {
+    min = $a();
+  }
+';
+my $max_code_bad_action = '
+  if ($ISGOOD($a()) && $a() > min) {
+    min = $a();
+  }
+  else {
+    min = $a();
+  }
+';
+$max_code     =~ s/HANDLEBADCODEHERE/$max_code_action/;
+$max_code_bad =~ s/HANDLEBADCODEHERE/$max_code_bad_action/;
 
 
 my $sum_code = <<'END_SUM_CODE'
@@ -173,6 +193,44 @@ EOC
 =for ref
  
 Calculate the minimum values in second ndarray given contiguous sequences of
+the same value in the first ndarray.
+
+Returns two ndarrays, the first is the values of the runs,
+the second is their aggregated values.
+
+In scalar context returns an array ref containing the two ndarrays.
+ 
+=cut
+  ',
+ 
+);
+
+# flattens any inputs before running the calculations
+#  perl inputs are reversed wrt pdl call
+pp_def('max_by_runs',
+  Pars      => 'a(n); b(n); [o]t(m); [o]u(m); indx s();',
+  PMCode    => <<'EOC',
+sub PDL::max_by_runs {
+  my ($runner, $agger) = @_;
+  my $t = $agger->zeroes ($agger->type(), $agger->nelem);
+  my $u = $t->copy;
+  #  this stores in its first value the highest index into $t
+  my $sizer = pdl(PDL::indx, [0]);
+  &PDL::_max_by_runs_int($agger->flat,$runner->flat,$t,$u,$sizer);
+  $sizer = $sizer->at(0);
+  $t->reshape($sizer)->sever;  #  get rid of excess vals
+  $u->reshape($sizer)->sever;
+  return wantarray ? ($u, $t) : [$u, $t];
+}
+EOC
+  HandleBad => 1,
+  Code      => $max_code,
+  BadCode   => $max_code_bad,
+  Doc       => '
+ 
+=for ref
+ 
+Calculate the maximum values in second ndarray given contiguous sequences of
 the same value in the first ndarray.
 
 Returns two ndarrays, the first is the values of the runs,
