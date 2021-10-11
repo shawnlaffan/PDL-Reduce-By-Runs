@@ -53,7 +53,7 @@ sub PDL::sum_by_runs {
   return wantarray ? ($u, $t) : [$u, $t];
 }
 EOC
-  HandleBad => 0,  #  fix later
+  HandleBad => 1,  #  fix later
   Code      => '
     PDL_Indx j = 0;
     double sum = 0;
@@ -70,6 +70,29 @@ EOC
         last_bval = bval;
       }
       sum += $a();
+    %}
+    $t(m=>j) = sum;
+    $u(m=>j) = last_bval;
+    $s() = j+1;  // number of vals
+  ',
+  BadCode      => '
+    PDL_Indx j = 0;
+    double sum = 0;
+    $GENERIC(b) bval, last_bval;
+    last_bval = $b(n=>0);
+    $t(m=>0) = 0;
+    loop (n) %{
+      bval = $b();
+      if (last_bval != bval) {
+        $t(m=>j) = sum;
+        $u(m=>j) = last_bval;
+        sum = 0;
+        j++;
+        last_bval = bval;
+      }
+      if ($ISGOOD(a())) {
+        sum += $a();
+      }
     %}
     $t(m=>j) = sum;
     $u(m=>j) = last_bval;

@@ -71,14 +71,28 @@ sub test_sums {
 
     $runner = PDL->sequence (3,4,5)->divide(5, 0)->floor;
     $agger  = PDL->ones ($runner->dims);
-    #say STDERR '=====';
-    #say STDERR $runner;
-    #say STDERR $agger;
     my ($vals, $agged) = sum_by_runs ($runner, $agger);
     is_pdl $agged, PDL->ones(12) * 5, "aggregate sums for ndim ndarray";
     is_pdl $vals,  $runner->uniq,     "runner values for ndim ndarray";
-    #say STDERR "Aggregated: " . $agged;
-    #say STDERR "Values:     " . $vals;
+
+    $runner = PDL->pdl ([1,1,1,2,2,2,1,1,1,2,2,2]);
+    $runner = $runner->setbadif($runner==2);
+    $agger  = PDL->ones ($runner->dims);
+    ($vals, $agged) = sum_by_runs ($runner, $agger);
+    $expected_val = PDL->pdl (q[1 bad 1 bad]); 
+    is_pdl $agged, PDL->ones(4) * 3, "aggregate sums when runner has bad vals";
+    is_pdl $vals,  $expected_val,  "runner values when runner has bad vals";
+    
+    $runner = PDL->pdl ([1,1,1,2,2,2,1,1,1,2,2,2]);
+    $agger  = PDL->ones ($runner->dims);
+    $agger->setbadat (0);
+    $agger->setbadat (7);
+    ($vals, $agged) = sum_by_runs ($runner, $agger);
+    $expected_val = PDL->pdl (q[1 2 1 2]); 
+    is_pdl $agged, PDL->new ([2,3,2,3]), "aggregate sums when agger has bad vals";
+    is_pdl $vals,  $expected_val,  "runner values when agger has bad vals";
+    #diag $vals;
+    #diag $expected_val;
 }
 
 #sub test_maxima {
