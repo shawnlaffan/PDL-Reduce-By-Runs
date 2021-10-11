@@ -31,21 +31,22 @@ EOD
 ;
 
 
+# flattens any inputs before running the calculations
 pp_def('sum_by_runs',
-  Pars      => 'a(n); b(n); [o]t(n); indx s(n);',
+  Pars      => 'a(n); b(n); [o]t(m); indx s(m);',
   PMCode    => <<'EOC',
 sub PDL::sum_by_runs {
   my ($x,$y) = @_;
   #  will not handle overflow
-  my $t     = $x->zeroes ($x->type(), $x->dims);
+  my $t     = $x->zeroes ($x->type(), $x->nelem);
   #  this stores in its first value the highest index into $t
   my $sizer = pdl(PDL::indx, [0]);
-  &PDL::_sum_by_runs_int($x,$y,$t,$sizer);
+  &PDL::_sum_by_runs_int($x->flat,$y->flat,$t,$sizer);
   #say STDERR "S IS: " . $sizer;
   #say STDERR "T IS $t";
   $sizer = $sizer->at(0);
   #say STDERR "S IS: " . $sizer;
-  return ($t->slice("0:$sizer")->sever);
+  return $t->reshape($sizer+1)->sever;
 }
 EOC
   HandleBad => 0,  #  fix later
@@ -54,19 +55,19 @@ EOC
     double sum = 0;
     $GENERIC(b) bval, last_bval;
     last_bval = $b(n=>0);
-    $t(n=>0) = 0;
+    $t(m=>0) = 0;
     loop (n) %{
       bval = $b();
       if (last_bval != bval) {
-        $t(n=>j) = sum;
+        $t(m=>j) = sum;
         sum = 0;
         j++;
         last_bval = bval;
       }
       sum += $a();
     %}
-    $t(n=>j) = sum;
-    $s(n=>0) = j;
+    $t(m=>j) = sum;
+    $s(m=>0) = j;
   ',
   Doc      => '
  
