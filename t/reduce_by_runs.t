@@ -43,70 +43,68 @@ sub main {
 }
 
 sub test_sums {
-    my ($x, $y, $result, $expected);
+    my ($runner, $agger, $result, $expected_val, $expected_agg);
     
-    $x = PDL->new ([(1) x 10]);
-    $y = PDL->new ([1,1,1,1,2,2,2,2,3,3]);
-    $result = sum_by_runs ($x, $y);
+    $agger = PDL->new ([(1) x 10]);
+    $runner = PDL->new ([1,1,1,1,2,2,2,2,3,3]);
+    $result = sum_by_runs ($runner, $agger);
     #say STDERR $result;
-    $expected = PDL->new ([4,4,2]);
-    is_pdl $result, $expected, 'simple sums';
+    $expected_agg = PDL->new ([4,4,2]);
+    is_pdl $result->[1], $expected_agg, 'simple sum aggregate';
+    is_pdl $result->[0], $runner->uniq, 'simple sum values';
     
-    $x = PDL->new ([(1.1) x 10]);
-    $y = PDL->new ([1.1,1.1,1.1,1.1,2.0,2,2,2,3.0,3]);
-    $result = sum_by_runs ($x, $y);
+    $agger = PDL->new ([(1.1) x 10]);
+    $runner = PDL->new ([1.1,1.1,1.1,1.1,2.0,2,2,2,3.0,3]);
+    $result = sum_by_runs ($runner, $agger);
     #say STDERR $result;
-    $expected = PDL->pdl ([4.4,4.4,2.2]);
-    is_pdl $result, $expected, 'x has doubles';
+    $expected_agg = PDL->pdl ([4.4,4.4,2.2]);
+    is_pdl $result->[1], $expected_agg, 'x has doubles';
     
-    $x = PDL->pdl ([(1) x 14]);
-    $y = PDL->pdl ([1.1,1.1,1.1,1.1,2.0,2,2,2,3.0,3,1.1,1.1,2,2]);
-    $result = sum_by_runs ($x, $y);
+    $agger = PDL->pdl ([(1) x 14]);
+    $runner = PDL->pdl ([1.1,1.1,1.1,1.1,2.0,2,2,2,3.0,3,1.1,1.1,2,2]);
+    $result = sum_by_runs ($runner, $agger);
     #say STDERR $result;
-    $expected = PDL->pdl ([4,4,2,2,2]);
-    is_pdl $result, $expected, 'compare equal';
+    $expected_agg = PDL->pdl ([4,4,2,2,2]);
+    $expected_val = PDL->pdl ([1.1, 2, 3, 1.1, 2]);
+    is_pdl $result->[1], $expected_agg, 'compare equal';
+    is_pdl $result->[0], $expected_val, 'values';
 
-    $y = PDL->sequence (3,4,5)->divide(5, 0)->floor;
-    $x = PDL->ones ($y->dims);
-    say STDERR '=====';
-    say STDERR $y;
-    say STDERR $x;
-    $result = sum_by_runs ($x, $y);
-    say STDERR $result;
-    
-    $x = $x->flat->sever;
-    $y = $y->flat->sever;
-    say STDERR '=====';
-    say STDERR $y;
-    say STDERR $x;
-    $result = sum_by_runs ($x, $y);
-    say STDERR $result;
+    $runner = PDL->sequence (3,4,5)->divide(5, 0)->floor;
+    $agger  = PDL->ones ($runner->dims);
+    #say STDERR '=====';
+    #say STDERR $runner;
+    #say STDERR $agger;
+    my ($vals, $agged) = sum_by_runs ($runner, $agger);
+    is_pdl $agged, PDL->ones(12) * 5, "aggregates correct for ndim ndarray";
+    is_pdl $vals,  $runner->uniq, "runners correct for ndim ndarray";
+    #say STDERR "Aggregated: " . $agged;
+    #say STDERR "Values:     " . $vals;
 }
 
-sub test_maxima {
-    return;
-    my ($x, $y, $result, $expected);
-    
-    $x = PDL->new ([1..10]);
-    $y = PDL->new ([1,1,1,1,2,2,2,2,3,3]);
-    $result = max_by_runs ($x, $y);
-    #say STDERR $result;
-    $expected = PDL->new ([4,8,10]);
-    is_pdl $result, $expected, 'simple sums';
-    
-    $x = PDL->new ([1..10]) + .1;
-    $y = PDL->new ([1.1,1.1,1.1,1.1,2.0,2,2,2,3.0,3]);
-    $result = max_by_runs ($x, $y);
-    #say STDERR $result;
-    $expected = PDL->pdl ([4.1,8.1,10.1]);
-    is_pdl $result, $expected, 'x has doubles';
-    
-    $x = PDL->pdl ([1..14]) * .5;
-    $y = PDL->pdl ([1.1,1.1,1.1,1.1,2.0,2,2,2,3.0,3,1.1,1.1,2,2]);
-    $result = max_by_runs ($x, $y);
-    #say STDERR $result;
-    $expected = PDL->pdl ([4.5,8.5,10.5,12.5,14.5]);
-    is_pdl $result, $expected, 'compare equal';
-    
-    
-}
+#sub test_maxima {
+#    return;
+#    my ($runner, $agger, $result, $expected_agg);
+#    
+#    $agger = PDL->new ([1..10]);
+#    $runner = PDL->new ([1,1,1,1,2,2,2,2,3,3]);
+#    $result = max_by_runs ($runner, $agger);
+#    #say STDERR $result;
+#    $expected_agg = PDL->new ([4,8,10]);
+#    is_pdl $result, $expected_agg, 'simple sums';
+#    
+#    $agger = PDL->new ([1..10]) + .1;
+#    $runner = PDL->new ([1.1,1.1,1.1,1.1,2.0,2,2,2,3.0,3]);
+#    $result = max_by_runs ($runner, $agger);
+#    #say STDERR $result;
+#    $expected_agg = PDL->pdl ([4.1,8.1,10.1]);
+#    is_pdl $result, $expected_agg, 'x has doubles';
+#    
+#    $agger = PDL->pdl ([1..14]) * .5;
+#    $runner = PDL->pdl ([1.1,1.1,1.1,1.1,2.0,2,2,2,3.0,3,1.1,1.1,2,2]);
+#    $result = max_by_runs ($runner, $agger);
+#    #say STDERR $result;
+#    $expected_agg = PDL->pdl ([4.5,8.5,10.5,12.5,14.5]);
+#    is_pdl $result, $expected_agg, 'compare equal';
+#    
+#    
+#}
