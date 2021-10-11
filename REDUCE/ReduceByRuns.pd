@@ -34,7 +34,7 @@ EOD
 # flattens any inputs before running the calculations
 #  perl inputs are reversed wrt pdl call
 pp_def('sum_by_runs',
-  Pars      => 'a(n); b(n); [o]t(m); [o]u(m); indx s(m);',
+  Pars      => 'a(n); b(n); [o]t(m); [o]u(m); indx s();',
   PMCode    => <<'EOC',
 sub PDL::sum_by_runs {
   my ($runner, $agger) = @_;
@@ -73,7 +73,7 @@ EOC
     %}
     $t(m=>j) = sum;
     $u(m=>j) = last_bval;
-    $s(m=>0) = j+1;  // number of vals
+    $s() = j+1;  // number of vals
   ',
   Doc      => '
  
