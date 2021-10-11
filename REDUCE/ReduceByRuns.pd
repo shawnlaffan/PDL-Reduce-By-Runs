@@ -86,9 +86,7 @@ my $sum_code = <<'END_SUM_CODE'
         j++;
         last_bval = bval;
       }
-      MMMARKER1
-        sum += $a();
-      MMMARKER2
+      HANDLEBADCODEHERE
     %}
     $t(m=>j) = sum;
     $u(m=>j) = last_bval;
@@ -97,15 +95,14 @@ my $sum_code = <<'END_SUM_CODE'
 END_SUM_CODE
   ;
 my $sum_code_bad = $sum_code;
-
-#  now replace the markers
-foreach ($sum_code, $min_code) {
-  $_ =~ s/MMMARKER[12]//g;
+my $sum_code_action = 'sum += $a();';
+my $sum_code_bad_action = '
+if ($ISGOOD(a())) {
+  sum += $a();
 }
-foreach ($sum_code_bad, $min_code_bad) {
-  $_ =~ s/MMMARKER1/if (\$ISGOOD(a())) {/;
-  $_ =~ s/MMMARKER2/}/;
-}
+';
+$sum_code     =~ s/HANDLEBADCODEHERE/$sum_code_action/;
+$sum_code_bad =~ s/HANDLEBADCODEHERE/$sum_code_bad_action/;
 
 
 # flattens any inputs before running the calculations
