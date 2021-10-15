@@ -1,4 +1,4 @@
 # PDL-ReduceByRuns
 
-Run reduce functions on ndarray A using runs of values in ndarray B.
+Run reduce functions on one ndarray using runs of values in a second ndarray.
 
