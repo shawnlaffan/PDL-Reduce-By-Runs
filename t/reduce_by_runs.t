@@ -98,13 +98,13 @@ sub test_minima {
     my ($runner, $agger, $result, $expected_val, $expected_agg);
     my ($vals, $agged);
 
-    $agger = PDL->sequence (10);
+    $agger  = PDL->sequence (10);
     $runner = PDL->new ([1,1,1,1,2,2,2,2,3,3]);
     $result = min_by_runs ($runner, $agger);
     $expected_agg = PDL->new ([0,4,8]);
     is_pdl $result->[1], $expected_agg, 'simple min aggregate';
     is_pdl $result->[0], $runner->uniq, 'simple min values';
-    
+
     $agger = PDL->sequence (10) + 0.1;
     $runner = PDL->new ([1.1,1.1,1.1,1.1,2.0,2,2,2,3.0,3]);
     $result = min_by_runs ($runner, $agger);
@@ -140,6 +140,16 @@ sub test_minima {
     $agger->setbadat (7);
     ($vals, $agged) = min_by_runs ($runner, $agger);
     $expected_val = PDL->pdl (q[1 2 1 2]);
+    $expected_agg = PDL->new ([1,1,1,1]);
+    is_pdl $agged, $expected_agg, "aggregate mins when agger has bad vals";
+    is_pdl $vals,  $expected_val,  "runner values when agger min has bad vals";
+
+    $runner = PDL->pdl (PDL::short(), [1,1,1,2,2,2,1,1,1,2,2,2]);
+    $agger  = PDL->ones ($runner->dims);
+    $agger->setbadat (0);
+    $agger->setbadat (7);
+    ($vals, $agged) = min_by_runs ($runner, $agger);
+    $expected_val = PDL->pdl (PDL::short, q[1 2 1 2]);
     $expected_agg = PDL->new ([1,1,1,1]);
     is_pdl $agged, $expected_agg, "aggregate mins when agger has bad vals";
     is_pdl $vals,  $expected_val,  "runner values when agger min has bad vals";
@@ -194,6 +204,17 @@ sub test_maxima {
     $expected_agg = PDL->new ([1,1,1,1]);
     is_pdl $agged, $expected_agg, "aggregate mins when agger has bad vals";
     is_pdl $vals,  $expected_val,  "runner values when agger min has bad vals";
+
+
+    $agger = PDL->sequence (PDL::short(), 14);
+    $runner = PDL->pdl ([1.1,1.1,1.1,1.1,2.0,2,2,2,3.0,3,1.1,1.1,2,2]);
+    $agger->setbadat(0);
+    $agger->setbadat(1);
+    $result = max_by_runs ($runner, $agger);
+    $expected_agg = PDL->pdl (PDL::short, [3,7,9,11,13]);
+    $expected_val = PDL->pdl ($runner->type, [1.1, 2, 3, 1.1, 2]);
+    is_pdl $result->[1], $expected_agg, 'agger max for short data type';
+    is_pdl $result->[0], $expected_val, 'runner max for short data type';
 }
 
 sub test_products {

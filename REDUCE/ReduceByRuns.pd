@@ -147,8 +147,8 @@ pp_def('sum_by_runs',
 sub PDL::sum_by_runs {
   my ($runner, $agger) = @_;
   #  will not handle overflow
-  my $t = $agger->zeroes ($agger->type(), $agger->nelem);
-  my $u = $t->copy;
+  my $t = $agger->zeroes ($agger->type,  $agger->nelem);
+  my $u = $runner->zeroes($runner->type, $runner->nelem);
   #  this stores in its first value the highest index into $t
   my $sizer = pdl(PDL::indx, [0]);
   &PDL::_sum_by_runs_int($agger->flat,$runner->flat,$t,$u,$sizer);
@@ -189,8 +189,8 @@ pp_def('product_by_runs',
 sub PDL::product_by_runs {
   my ($runner, $agger) = @_;
   #  will not handle overflow
-  my $t = $agger->zeroes ($agger->type(), $agger->nelem);
-  my $u = $t->copy;
+  my $t = $agger->zeroes ($agger->type,  $agger->nelem);
+  my $u = $runner->zeroes($runner->type, $runner->nelem);
   #  this stores in its first value the highest index into $t
   my $sizer = pdl(PDL::indx, [0]);
   &PDL::_product_by_runs_int($agger->flat,$runner->flat,$t,$u,$sizer);
@@ -230,13 +230,13 @@ pp_def('min_by_runs',
   PMCode    => <<'EOC',
 sub PDL::min_by_runs {
   my ($runner, $agger) = @_;
-  my $t = $agger->zeroes ($agger->type(), $agger->nelem);
-  my $u = $t->copy;
+  my $t = $agger->zeroes ($agger->type,  $agger->nelem);
+  my $u = $runner->zeroes($runner->type, $runner->nelem);
   #  this stores in its first value the highest index into $t
   my $sizer = pdl(PDL::indx, [0]);
   &PDL::_min_by_runs_int($agger->flat,$runner->flat,$t,$u,$sizer);
   $sizer = $sizer->at(0);
-  $t->reshape($sizer)->sever;  #  get rid of excess vals
+  $t->reshape($sizer)->sever;  #  get rid of any excess vals
   $u->reshape($sizer)->sever;
   return wantarray ? ($u, $t) : [$u, $t];
 }
@@ -268,8 +268,8 @@ pp_def('max_by_runs',
   PMCode    => <<'EOC',
 sub PDL::max_by_runs {
   my ($runner, $agger) = @_;
-  my $t = $agger->zeroes ($agger->type(), $agger->nelem);
-  my $u = $t->copy;
+  my $t = $agger->zeroes ($agger->type(),  $agger->nelem);
+  my $u = $runner->zeroes($runner->type(), $runner->nelem);
   #  this stores in its first value the highest index into $t
   my $sizer = pdl(PDL::indx, [0]);
   &PDL::_max_by_runs_int($agger->flat,$runner->flat,$t,$u,$sizer);
