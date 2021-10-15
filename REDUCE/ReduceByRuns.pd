@@ -152,10 +152,7 @@ sub PDL::sum_by_runs {
   #  this stores in its first value the highest index into $t
   my $sizer = pdl(PDL::indx, [0]);
   &PDL::_sum_by_runs_int($agger->flat,$runner->flat,$t,$u,$sizer);
-  #say STDERR "S IS: " . $sizer;
-  #say STDERR "T IS $t";
   $sizer = $sizer->at(0);
-  #say STDERR "S IS: " . $sizer;
   $t->reshape($sizer)->sever;  #  get rid of excess vals
   $u->reshape($sizer)->sever;
   return wantarray ? ($u, $t) : [$u, $t];
@@ -194,10 +191,7 @@ sub PDL::product_by_runs {
   #  this stores in its first value the highest index into $t
   my $sizer = pdl(PDL::indx, [0]);
   &PDL::_product_by_runs_int($agger->flat,$runner->flat,$t,$u,$sizer);
-  #say STDERR "S IS: " . $sizer;
-  #say STDERR "T IS $t";
   $sizer = $sizer->at(0);
-  #say STDERR "S IS: " . $sizer;
   $t->reshape($sizer)->sever;  #  get rid of excess vals
   $u->reshape($sizer)->sever;
   return wantarray ? ($u, $t) : [$u, $t];
@@ -210,7 +204,7 @@ EOC
  
 =for ref
  
-Caluclate the product of values in second ndarray given contiguous sequences of
+Calculate the product of values in second ndarray given contiguous sequences of
 the same value in the first ndarray.
 
 Returns two ndarrays, the first is the values of the runs,
