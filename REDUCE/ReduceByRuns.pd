@@ -60,54 +60,54 @@ EOD
 ;
 
 #  min is also used for max - should rename that var
-my $min_code = <<'END_MIN_CODE'
+my $min_code = <<'END_EXTREMUM_CODE'
     PDL_Indx j = 0;
-    double min = $a(n=>0);
+    double extremum = $a(n=>0);
     $GENERIC(b) bval, last_bval;
     last_bval = $b(n=>0);
     $t(m=>0) = 0;
     loop (n) %{
       bval = $b();
       if (last_bval != bval) {
-        $t(m=>j) = min;
+        $t(m=>j) = extremum;
         $u(m=>j) = last_bval;
-        min = $a();
+        extremum = $a();
         j++;
         last_bval = bval;
       }
       HANDLEBADCODEHERE
     %}
-    $t(m=>j) = min;
+    $t(m=>j) = extremum;
     $u(m=>j) = last_bval;
     $s() = j+1;  // number of vals    
 
-END_MIN_CODE
+END_EXTREMUM_CODE
   ;
 my $min_code_bad = $min_code;
 my $max_code     = $min_code;
 my $max_code_bad = $max_code;
 
 my $min_code_action = '
-  if ($a() < min) {
-    min = $a();
+  if ($a() < extremum) {
+    extremum = $a();
   }
 ';
 my $min_code_bad_action = '
-  if ($ISBADVAR(min,a) || ($ISGOOD(a()) && $a() < min)) {
-    min = $a();
+  if ($ISBADVAR(extremum,a) || ($ISGOOD(a()) && $a() < extremum)) {
+    extremum = $a();
   }
 ';
 $min_code     =~ s/HANDLEBADCODEHERE/$min_code_action/;
 $min_code_bad =~ s/HANDLEBADCODEHERE/$min_code_bad_action/;
 
 my $max_code_action = '
-  if ($a() > min) {
-    min = $a();
+  if ($a() > extremum) {
+    extremum = $a();
   }
 ';
 my $max_code_bad_action = '
-  if ($ISBADVAR(min,a) || ($ISGOOD(a()) && $a() > min)) {
-    min = $a();
+  if ($ISBADVAR(extremum,a) || ($ISGOOD(a()) && $a() > extremum)) {
+    extremum = $a();
   }
 ';
 $max_code     =~ s/HANDLEBADCODEHERE/$max_code_action/;
