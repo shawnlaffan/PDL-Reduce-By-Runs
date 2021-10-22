@@ -165,7 +165,7 @@ $prod_code_bad =~ s/HANDLEBADCODEHERE/$prod_code_bad_action/;
 # flattens any inputs before running the calculations
 #  perl inputs are reversed wrt pdl call
 pp_def('sum_by_runs',
-  Pars      => 'a(n); b(n); [o]t(m); [o]u(m); indx s();',
+  Pars      => 'b(n); a(n); [o]t(m); [o]u(m); indx s();',
   PMCode    => <<'EOC',
 sub PDL::sum_by_runs {
   my ($runner, $agger) = @_;
@@ -174,7 +174,7 @@ sub PDL::sum_by_runs {
   my $u = $runner->zeroes($runner->type, $runner->nelem);
   #  this stores in its first value the highest index into $t
   my $sizer = pdl(PDL::indx, [0]);
-  &PDL::_sum_by_runs_int($agger->flat,$runner->flat,$t,$u,$sizer);
+  &PDL::_sum_by_runs_int($runner->flat,$agger->flat,$t,$u,$sizer);
   $sizer = $sizer->at(0);
   $t->reshape($sizer)->sever;  #  get rid of excess vals
   $u->reshape($sizer)->sever;
@@ -199,7 +199,7 @@ the same value in the first ndarray.
 # flattens any inputs before running the calculations
 #  perl inputs are reversed wrt pdl call
 pp_def('product_by_runs',
-  Pars      => 'a(n); b(n); [o]t(m); [o]u(m); indx s();',
+  Pars      => 'b(n); a(n); [o]t(m); [o]u(m); indx s();',
   PMCode    => <<'EOC',
 sub PDL::product_by_runs {
   my ($runner, $agger) = @_;
@@ -208,7 +208,7 @@ sub PDL::product_by_runs {
   my $u = $runner->zeroes($runner->type, $runner->nelem);
   #  this stores in its first value the highest index into $t
   my $sizer = pdl(PDL::indx, [0]);
-  &PDL::_product_by_runs_int($agger->flat,$runner->flat,$t,$u,$sizer);
+  &PDL::_product_by_runs_int($runner->flat,$agger->flat,$t,$u,$sizer);
   $sizer = $sizer->at(0);
   $t->reshape($sizer)->sever;  #  get rid of excess vals
   $u->reshape($sizer)->sever;
@@ -233,7 +233,7 @@ the same value in the first ndarray.
 # flattens any inputs before running the calculations
 #  perl inputs are reversed wrt pdl call
 pp_def('min_by_runs',
-  Pars      => 'a(n); b(n); [o]t(m); [o]u(m); indx s();',
+  Pars      => 'b(n); a(n); [o]t(m); [o]u(m); indx s();',
   PMCode    => <<'EOC',
 sub PDL::min_by_runs {
   my ($runner, $agger) = @_;
@@ -241,7 +241,7 @@ sub PDL::min_by_runs {
   my $u = $runner->zeroes($runner->type, $runner->nelem);
   #  this stores in its first value the highest index into $t
   my $sizer = pdl(PDL::indx, [0]);
-  &PDL::_min_by_runs_int($agger->flat,$runner->flat,$t,$u,$sizer);
+  &PDL::_min_by_runs_int($runner->flat,$agger->flat,$t,$u,$sizer);
   $sizer = $sizer->at(0);
   $t->reshape($sizer)->sever;  #  get rid of any excess vals
   $u->reshape($sizer)->sever;
@@ -266,7 +266,7 @@ the same value in the first ndarray.
 # flattens any inputs before running the calculations
 #  perl inputs are reversed wrt pdl call
 pp_def('max_by_runs',
-  Pars      => 'a(n); b(n); [o]t(m); [o]u(m); indx s();',
+  Pars      => 'b(n); a(n); [o]t(m); [o]u(m); indx s();',
   PMCode    => <<'EOC',
 sub PDL::max_by_runs {
   my ($runner, $agger) = @_;
@@ -274,7 +274,7 @@ sub PDL::max_by_runs {
   my $u = $runner->zeroes($runner->type(), $runner->nelem);
   #  this stores in its first value the highest index into $t
   my $sizer = pdl(PDL::indx, [0]);
-  &PDL::_max_by_runs_int($agger->flat,$runner->flat,$t,$u,$sizer);
+  &PDL::_max_by_runs_int($runner->flat,$agger->flat,$t,$u,$sizer);
   $sizer = $sizer->at(0);
   $t->reshape($sizer)->sever;  #  get rid of excess vals
   $u->reshape($sizer)->sever;
