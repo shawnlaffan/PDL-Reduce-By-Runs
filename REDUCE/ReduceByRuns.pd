@@ -114,48 +114,48 @@ $max_code     =~ s/HANDLEBADCODEHERE/$max_code_action/;
 $max_code_bad =~ s/HANDLEBADCODEHERE/$max_code_bad_action/;
 
 
-my $sum_code = <<'END_SUM_CODE'
+my $sum_code = <<'END_AGGREGATE_CODE'
     PDL_Indx j = 0;
-    double sum = 0;
+    double aggregate = 0;
     $GENERIC(b) bval, last_bval;
     last_bval = $b(n=>0);
     $t(m=>0) = 0;
     loop (n) %{
       bval = $b();
       if (last_bval != bval) {
-        $t(m=>j) = sum;
+        $t(m=>j) = aggregate;
         $u(m=>j) = last_bval;
-        sum = 0;
+        aggregate = 0;
         j++;
         last_bval = bval;
       }
       HANDLEBADCODEHERE
     %}
-    $t(m=>j) = sum;
+    $t(m=>j) = aggregate;
     $u(m=>j) = last_bval;
     $s() = j+1;  // number of vals    
 
-END_SUM_CODE
+END_AGGREGATE_CODE
   ;
 my $sum_code_bad  = $sum_code;
 my $prod_code     = $sum_code;
 
-my $sum_code_action = 'sum += $a();';
+my $sum_code_action = 'aggregate += $a();';
 my $sum_code_bad_action = '
 if ($ISGOOD(a())) {
-  sum += $a();
+  aggregate += $a();
 }
 ';
 $sum_code     =~ s/HANDLEBADCODEHERE/$sum_code_action/;
 $sum_code_bad =~ s/HANDLEBADCODEHERE/$sum_code_bad_action/;
 
 #  fix starting val
-$prod_code =~ s/sum = 0/sum = 1/g;
+$prod_code =~ s/aggregate = 0/aggregate = 1/g;
 my $prod_code_bad = $prod_code;
-my $prod_code_action = 'sum *= $a();';
+my $prod_code_action = 'aggregate *= $a();';
 my $prod_code_bad_action = '
 if ($ISGOOD(a())) {
-  sum *= $a();
+  aggregate *= $a();
 }
 ';
 $prod_code     =~ s/HANDLEBADCODEHERE/$prod_code_action/;
