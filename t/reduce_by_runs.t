@@ -145,12 +145,13 @@ sub test_minima {
     is_pdl $vals,  $expected_val,  "runner values when agger min has bad vals";
 
     $runner = PDL->pdl (PDL::short(), [1,1,1,2,2,2,1,1,1,2,2,2]);
-    $agger  = PDL->ones ($runner->dims);
-    $agger->setbadat (0);
+    $agger  = PDL->pdl ([reverse 0..$runner->nelem-1]);
+    $agger->setbadat (1);
+    $agger->setbadat (2);
     $agger->setbadat (7);
     ($vals, $agged) = min_by_runs ($runner, $agger);
     $expected_val = PDL->pdl (PDL::short, q[1 2 1 2]);
-    $expected_agg = PDL->new ([1,1,1,1]);
+    $expected_agg = PDL->new (q[11 6 3 0]);
     is_pdl $agged, $expected_agg, "aggregate mins when agger has bad vals";
     is_pdl $vals,  $expected_val,  "runner values when agger min has bad vals";
 }
@@ -215,6 +216,16 @@ sub test_maxima {
     $expected_val = PDL->pdl ($runner->type, [1.1, 2, 3, 1.1, 2]);
     is_pdl $result->[1], $expected_agg, 'agger max for short data type';
     is_pdl $result->[0], $expected_val, 'runner max for short data type';
+
+    $agger = PDL->pdl (PDL::short(), [reverse 0..13]);
+    $runner = PDL->pdl ([1.1,1.1,1.1,1.1,2.0,2,2,2,3.0,3,1.1,1.1,2,2]);
+    $agger->setbadat(0);
+    $agger->setbadat(1);
+    $result = max_by_runs ($runner, $agger);
+    $expected_agg = PDL->pdl (PDL::short, [11,9,5,3,1]);
+    $expected_val = PDL->pdl ($runner->type, [1.1, 2, 3, 1.1, 2]);
+    is_pdl $result->[1], $expected_agg, 'agger max for short data type, reversed ndarray';
+    is_pdl $result->[0], $expected_val, 'runner max for short data type, reversed ndarray';
 }
 
 sub test_products {

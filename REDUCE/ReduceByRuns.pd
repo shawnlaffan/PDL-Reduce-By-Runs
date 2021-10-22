@@ -64,10 +64,7 @@ my $min_code_action = '
   }
 ';
 my $min_code_bad_action = '
-  if ($ISGOOD($a()) && $a() < min) {
-    min = $a();
-  }
-  else {
+  if ($ISBADVAR(min,a) || ($ISGOOD(a()) && $a() < min)) {
     min = $a();
   }
 ';
@@ -80,10 +77,7 @@ my $max_code_action = '
   }
 ';
 my $max_code_bad_action = '
-  if ($ISGOOD($a()) && $a() > min) {
-    min = $a();
-  }
-  else {
+  if ($ISBADVAR(min,a) || ($ISGOOD(a()) && $a() > min)) {
     min = $a();
   }
 ';
