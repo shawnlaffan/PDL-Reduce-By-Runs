@@ -5,26 +5,55 @@ our $VERSION = '0.01';
 pp_addpm({At=>'Top'}, <<'EOD');
  
 use PDL::LiteF;
-use PDL::NiceSlice;
 use Carp;
  
 $PDL::onlinedoc->scan(__FILE__) if $PDL::onlinedoc;
  
 =head1 NAME
  
-PDL::Gobble::Gobble::Gobble -- experiment
- 
+PDL::ReduceByRuns -- Reduce values in one ndarray given runs of values in another
+
 =head1 DESCRIPTION
  
-stuff
- 
+PDL extension to calculate reductions on an ndarray given contiguous sequences
+(runs) of the same value in another ndarray.
+
 =head1 SYNOPSIS
  
     use PDL::LiteF;
-    use PDL::NiceSlice;
-    use PDL::Gobble::Gobble::Gobble;
- 
- 
+    use PDL::ReduceByRuns;
+
+    my $values = sequence (10) + 1;
+    my $runner = PDL->pdl ([1,1,1,2,2,2,3,3,3,3]);
+    my ($runs, $reduced) = sum_by_runs ($runner, $agger);
+    #  $runs    is [1,2,3]
+    #  $reduced is [6,15,34]
+    ($runs, $reduced) = max_by_runs ($runner, $agger);
+    #  $runs    is [1,2,3]
+    #  $reduced is [3,6,10]
+    
+=head1 Some more details
+
+All input ndarrays are flattened for processing.  The returned values are also flat.
+
+Output ndarrays retain the type of their inputs.
+
+Be warned that these functions do not check for numeric overflow so if the input values
+of the reducer ndarray to the sum or product calculations exceed the numeric limits
+of your type then odd things may happen.  If that is a risk then you could promote
+the type before input (maybe this should be an option).
+
+All subs return two ndarrays.  The first is the values of the runs,
+the second is the reduced values.
+
+In scalar context they return an array ref containing the two ndarrays.
+
+The original motivation was to aggregate runs of values to simplify the percentile
+calculations in L<Statistics::Descriptive::PDL::SampleWeighted>.  Basically it needed to
+calculate the sum of the weights for each unique input value for a sorted ndarray.
+In this module the process has been generalised to other reduction functions,
+some of which might be useful and others are more for completeness.
+
 =cut
  
 EOD
@@ -159,13 +188,8 @@ EOC
  
 =for ref
  
-Sum values in second ndarray given contiguous sequences of
+Sum values in second ndarray given runs of
 the same value in the first ndarray.
-
-Returns two ndarrays, the first is the values of the runs,
-the second is their aggregated values.
-
-In scalar context returns an array ref containing the two ndarrays.
  
 =cut
   ',
@@ -198,13 +222,8 @@ EOC
  
 =for ref
  
-Calculate the product of values in second ndarray given contiguous sequences of
+Calculate the product of values in second ndarray given runs of
 the same value in the first ndarray.
-
-Returns two ndarrays, the first is the values of the runs,
-the second is their aggregated values.
-
-In scalar context returns an array ref containing the two ndarrays.
  
 =cut
   ',
@@ -236,14 +255,9 @@ EOC
  
 =for ref
  
-Calculate the minimum values in second ndarray given contiguous sequences of
+Calculate the minimum values in second ndarray given runs of
 the same value in the first ndarray.
 
-Returns two ndarrays, the first is the values of the runs,
-the second is their aggregated values.
-
-In scalar context returns an array ref containing the two ndarrays.
- 
 =cut
   ',
  
@@ -274,14 +288,9 @@ EOC
  
 =for ref
  
-Calculate the maximum values in second ndarray given contiguous sequences of
+Calculate the maximum values in second ndarray given runs of
 the same value in the first ndarray.
 
-Returns two ndarrays, the first is the values of the runs,
-the second is their aggregated values.
-
-In scalar context returns an array ref containing the two ndarrays.
- 
 =cut
   ',
  
