@@ -65,7 +65,6 @@ my $min_code = <<'END_EXTREMUM_CODE'
     double extremum = $a(n=>0);
     $GENERIC(b) bval, last_bval;
     last_bval = $b(n=>0);
-    $t(m=>0) = 0;
     loop (n) %{
       bval = $b();
       if (last_bval != bval) {
@@ -119,7 +118,6 @@ my $sum_code = <<'END_AGGREGATE_CODE'
     double aggregate = 0;
     $GENERIC(b) bval, last_bval;
     last_bval = $b(n=>0);
-    $t(m=>0) = 0;
     loop (n) %{
       bval = $b();
       if (last_bval != bval) {
@@ -133,7 +131,7 @@ my $sum_code = <<'END_AGGREGATE_CODE'
     %}
     $t(m=>j) = aggregate;
     $u(m=>j) = last_bval;
-    $s() = j+1;  // number of vals    
+    $s() = j+1;  // number of vals - might be able to use $SETNDIMS
 
 END_AGGREGATE_CODE
   ;
@@ -210,6 +208,7 @@ sub PDL::product_by_runs {
   my $sizer = pdl(PDL::indx, [0]);
   &PDL::_product_by_runs_int($runner->flat,$agger->flat,$t,$u,$sizer);
   $sizer = $sizer->at(0);
+  #  consider $t->setdims([$sizer]); $t->upd_data;
   $t->reshape($sizer)->sever;  #  get rid of excess vals
   $u->reshape($sizer)->sever;
   return wantarray ? ($u, $t) : [$u, $t];
